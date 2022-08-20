@@ -1,7 +1,7 @@
 name: win_capture
-description: A new Flutter project.
+description: screen capture plugin for mac, linux and window os
 version: 0.0.1
-homepage:
+homepage: https://github.com/bultforce/win_capture
 
 environment:
   sdk: ">=2.17.6 <3.0.0"
