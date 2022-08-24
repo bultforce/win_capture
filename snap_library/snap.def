@@ -1,3 +1,4 @@
 LIBRARY  snap
 EXPORTS
    snap_shot
+    reverse

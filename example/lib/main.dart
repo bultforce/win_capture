@@ -87,6 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
               color: Colors.blue,
               onPressed: ()async{
                 var path = await getApplicationDocumentsDirectory();
+                print("path----${path.path}/${DateTime.now().millisecondsSinceEpoch}.png");
                 _winCapture.getScreenSnapShot(fileName: "${DateTime.now().millisecondsSinceEpoch}.png", filePath: path.path).then((value) {
                   debugPrint(value);
                 });

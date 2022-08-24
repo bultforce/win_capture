@@ -5,8 +5,12 @@ import 'package:ffi/ffi.dart';
 import 'package:path/path.dart' as path;
 import 'win_capture_platform_interface.dart';
 
-typedef max_func = Int32 Function(Int32 size, Pointer<Double> list);
-typedef Max = int Function(int size, Pointer<Double> list);
+typedef max_func = Pointer<Utf8> Function(Pointer<Utf8> str, Int32 length);
+typedef Max = Pointer<Utf8> Function(Pointer<Utf8> str, int length);
+
+// C function: char *reverse(char *str, int length)
+typedef ReverseNative = Pointer<Utf8> Function(Pointer<Utf8> str, Int32 length);
+typedef Reverse = Pointer<Utf8> Function(Pointer<Utf8> str, int length);
 class WinCapture {
 
   Future<String?> getPlatformVersion() {
@@ -38,10 +42,23 @@ class WinCapture {
       final list = [0];
       final listPtr = intListToArray(list);
 
-      final maxPointer = dylib.lookup<NativeFunction<max_func>>('snap_shot');
-      final max = maxPointer.asFunction<Max>();
-      print('${max(list.length, listPtr)}'); // 131000
-      malloc.free(listPtr);
+      final maxPointer = dylib.lookupFunction<max_func, Max>('snap_shot');
+      final mbackwards = "$filePath/$fileName";
+      final mbackwardsUtf8 = mbackwards.toNativeUtf8();
+      maxPointer(mbackwardsUtf8, mbackwards.length);
+      // final reversedMessage1 = reversedMessageUtf81.toDartString();
+      // final mreversedMessagesedMessage = reversedMessageUtf81.toDartString();
+      calloc.free(mbackwardsUtf8);
+
+      final reverse = dylib.lookupFunction<ReverseNative, Reverse>('reverse');
+      final backwards = "$filePath/$fileName";
+      final backwardsUtf8 = backwards.toNativeUtf8();
+      final reversedMessageUtf8 = reverse(backwardsUtf8, backwards.length);
+      final reversedMessage = reversedMessageUtf8.toDartString();
+      calloc.free(backwardsUtf8);
+      print('$backwards reversed is $reversedMessage');
+
+
       return "Successfully snapted";
     }
   }
