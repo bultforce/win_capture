@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:flutter/services.dart';
@@ -22,6 +24,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    _winCapture.init();
     initPlatformState();
   }
 
@@ -86,14 +89,16 @@ class _HomeScreenState extends State<HomeScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 40),
               color: Colors.blue,
               onPressed: ()async{
-                var path = await getApplicationDocumentsDirectory();
-                print("path----${path.path}/${DateTime.now().millisecondsSinceEpoch}.png");
-                _winCapture.getScreenSnapShot(fileName: "${DateTime.now().millisecondsSinceEpoch}.png", filePath: path.path).then((value) {
+                final Directory appDocDirFolder = Directory('${Directory.current.path}/Workstatus/snapshot');
+                if (!await appDocDirFolder.exists()) {
+                  await appDocDirFolder.create(recursive: true);
+                }
+               _winCapture.getScreenSnapShot(fileName: "${DateTime.now().millisecondsSinceEpoch}.png",
+                    filePath: appDocDirFolder.path).then((value) {
                   debugPrint(value);
                 });
               },
               child:const Text("Capture Screen", style: TextStyle(color: Colors.white),),),
-
           ],
         ),
       ),

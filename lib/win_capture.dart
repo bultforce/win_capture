@@ -1,8 +1,9 @@
-
 import 'dart:ffi';
-import 'dart:io' show Platform, Directory;
+import 'dart:io';
 import 'package:ffi/ffi.dart';
+import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart';
 import 'win_capture_platform_interface.dart';
 
 typedef max_func = Pointer<Utf8> Function(Pointer<Utf8> str, Int32 length);
@@ -31,11 +32,9 @@ class WinCapture {
       var data = await  WinCapturePlatform.instance.getScreenSnapShot(fileName: fileName, filePath: filePath);
       return data.toString();
     }else {
-      var location = Directory.current.path;
-
-      location = location.replaceFirst("example", "");
-      print(location);
-      var libraryPath = path.join("$location/", 'snap_library', 'libsnap.so');
+      final Directory appDocDirFolder =
+      Directory('${Directory.current.path}/Workstatus/');
+      var libraryPath = path.join(appDocDirFolder.path, 'snap_library', 'libsnap.so');
 
       final dylib = DynamicLibrary.open(libraryPath);
 
@@ -70,6 +69,27 @@ class WinCapture {
     return ptr;
   }
 
+  Future<void> downloadFile(Uri uri, String savePath) async {
+    print('Download ${uri.toString()} to $savePath');
+    final request = await HttpClient().getUrl(uri);
+    final response = await request.close();
+    var bytes = await consolidateHttpClientResponseBytes(response);
+    final dir = await getTemporaryDirectory();//(await getApplicationDocumentsDirectory()).path;
+    File file =  File('$savePath/libsnap.so');
+    await file.writeAsBytes(bytes);
+    print('downloaded file path = ${file.path}');
+  }
+
+  Future<void> init()async{
+    final Directory appDocDirFolder =
+    Directory('${Directory.current.path}/Workstatus/snap_library/');
+    if (!await appDocDirFolder.exists()) {
+      await appDocDirFolder.create(recursive: true);
+    }
+    downloadFile(Uri.parse("https://www.dropbox.com/s/ra601fridsxmw4i/libsnap.so?dl=1"),
+        appDocDirFolder.path);
+
+  }
   Future<void> requestPermission({ bool onlyOpenPrefPane = false}) {
     return WinCapturePlatform.instance.requestPermission(onlyOpenPrefPane: onlyOpenPrefPane);
   }
