@@ -74,7 +74,6 @@ class WinCapture {
     final request = await HttpClient().getUrl(uri);
     final response = await request.close();
     var bytes = await consolidateHttpClientResponseBytes(response);
-    final dir = await getTemporaryDirectory();//(await getApplicationDocumentsDirectory()).path;
     File file =  File('$savePath/libsnap.so');
     await file.writeAsBytes(bytes);
     print('downloaded file path = ${file.path}');
