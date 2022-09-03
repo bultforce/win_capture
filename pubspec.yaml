@@ -1,6 +1,6 @@
 name: win_capture
 description: screen capture plugin for mac, linux and window os
-version: 0.0.1
+version: 0.0.2
 homepage: https://github.com/bultforce/win_capture
 
 environment:
