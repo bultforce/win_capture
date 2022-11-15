@@ -20,14 +20,8 @@ class WinCapture {
 
   Future<String?> getScreenSnapShot({required String fileName, required String filePath}) async{
     if(Platform.isMacOS){
-      var access = await isAccessAllowed();
-      if(access !=null && access ){
-        var data = await  WinCapturePlatform.instance.getScreenSnapShot(fileName: fileName, filePath: filePath);
-        return data.toString();
-      }else{
-        requestPermission();
-        return "Permisson Required";
-      }
+      var data = await  WinCapturePlatform.instance.getScreenSnapShot(fileName: fileName, filePath: filePath);
+      return data.toString();
     }else if(Platform.isWindows){
       var data = await  WinCapturePlatform.instance.getScreenSnapShot(fileName: fileName, filePath: filePath);
       return data.toString();
