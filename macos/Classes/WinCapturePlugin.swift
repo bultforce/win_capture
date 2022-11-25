@@ -20,6 +20,8 @@ public class WinCapturePlugin: NSObject, FlutterPlugin {
      break
     case "screenCapture":
      screenCapture(call, result: result)
+    case "popUpWindow":
+     popUpWindow(call, result: result)
      break
     default:
       result(FlutterMethodNotImplemented)
@@ -45,6 +47,12 @@ public class WinCapturePlugin: NSObject, FlutterPlugin {
         CGImageDestinationFinalize(dest!)
 
         print("\(imgPath)")
+        result(true)
+    }
+
+    public func popUpWindow(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        NSApp.requestUserAttention(.criticalRequest)
+         print("popUpWindow")
         result(true)
     }
 

@@ -92,4 +92,8 @@ class WinCapture {
     return WinCapturePlatform.instance.isAccessAllowed();
   }
 
+  Future<bool?> popUpWindow() {
+    return WinCapturePlatform.instance.popUpWindow();
+  }
+
 }

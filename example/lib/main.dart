@@ -99,6 +99,17 @@ class _HomeScreenState extends State<HomeScreen> {
                 });
               },
               child:const Text("Capture Screen", style: TextStyle(color: Colors.white),),),
+            SizedBox(height: 30,),
+            MaterialButton(
+              padding: const EdgeInsets.symmetric(horizontal: 40),
+              color: Colors.blue,
+              onPressed: ()async{
+
+                _winCapture.popUpWindow().then((value) {
+                  print(value);
+                });
+              },
+              child:const Text("popUpWindow", style: TextStyle(color: Colors.white),),),
           ],
         ),
       ),

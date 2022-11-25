@@ -37,4 +37,7 @@ abstract class WinCapturePlatform extends PlatformInterface {
   Future<bool?> isAccessAllowed() {
     throw UnimplementedError('isAccessAllowed() has not been implemented.');
   }
+  Future<bool?> popUpWindow() {
+    throw UnimplementedError('popUpWindow() has not been implemented.');
+  }
 }

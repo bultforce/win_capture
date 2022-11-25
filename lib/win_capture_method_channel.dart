@@ -40,4 +40,9 @@ class MethodChannelWinCapture extends WinCapturePlatform {
     return await methodChannel.invokeMethod('screenCapture', optionMap);
   }
 
+  @override
+  Future<bool?> popUpWindow() async{
+    return await methodChannel.invokeMethod('popUpWindow',);
+  }
+
 }
