@@ -81,8 +81,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   await appDocDirFolder.create(recursive: true);
                 }
                 if(Platform.isMacOS || Platform.isWindows){
-                  _winCapture.getScreenSnapShot(fileName: "${DateTime.now().millisecondsSinceEpoch}.png",
+              var path =    await _winCapture.getScreenSnapShot(fileName: "${DateTime.now().millisecondsSinceEpoch}.png",
                       filePath: appDocDirFolder.path);
+              print(path);
                 }else{
                   _winCapture.getScreenSnapShot(fileName: "${DateTime.now().millisecondsSinceEpoch}.png",
                       filePath: appDocDirFolder.path, libPath: _libPath);
