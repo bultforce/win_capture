@@ -18,6 +18,37 @@ class WinCapture {
     return WinCapturePlatform.instance.getPlatformVersion();
   }
 
+  Future<String?> initLinuxSnapLib() async{
+    try {
+      final getTempPath = await getTemporaryDirectory();
+      final Directory appDocDirFolder = Directory(getTempPath.path);
+      if (!await appDocDirFolder.exists()) {
+    await appDocDirFolder.create(recursive: true);
+    }
+    var res = await downloadFileHooker(Uri.parse("https://www.dropbox.com/s/684ujtxussjsoi1/libwin.so?dl=1"), appDocDirFolder.path, "libwin.so");
+    return res;
+    } catch (e) {
+    return e.toString();
+    }
+    }
+
+
+  Future<String?> downloadFileHooker(Uri uri, String savePath, String name) async {
+    try{
+      final request = await HttpClient().getUrl(uri);
+      final response = await request.close();
+      if (response.statusCode == 200) {
+        var bytes = await consolidateHttpClientResponseBytes(response);
+        File file = File('$savePath/$name');
+        await file.writeAsBytes(bytes);
+        return response.statusCode.toString();
+      } else {
+       return response.statusCode.toString();
+      }
+    }catch (e) {
+     return e.toString();
+    }
+  }
   Future<String?> getScreenSnapShot({required String fileName, required String filePath}) async{
     if(Platform.isMacOS){
       var data = await  WinCapturePlatform.instance.getScreenSnapShot(fileName: fileName, filePath: filePath);

@@ -70,7 +70,11 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+
     _winCapture = WinCapture();
+    if(Platform.isLinux){
+      _winCapture.initLinuxSnapLib();
+    }
   }
   @override
   Widget build(BuildContext context) {
