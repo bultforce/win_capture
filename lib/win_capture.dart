@@ -5,60 +5,68 @@ import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as path;
 import 'win_capture_platform_interface.dart';
 
-typedef max_func = Pointer<Utf8> Function(Pointer<Utf8> str, Int32 length);
+typedef MaxFun = Pointer<Utf8> Function(Pointer<Utf8> str, Int32 length);
 typedef Max = Pointer<Utf8> Function(Pointer<Utf8> str, int length);
 
 // C function: char *reverse(char *str, int length)
 typedef ReverseNative = Pointer<Utf8> Function(Pointer<Utf8> str, Int32 length);
 typedef Reverse = Pointer<Utf8> Function(Pointer<Utf8> str, int length);
-class WinCapture {
 
+class WinCapture {
   Future<String?> getPlatformVersion() {
     return WinCapturePlatform.instance.getPlatformVersion();
   }
 
-  Future<String?> initLinuxSnapLib(String path) async{
+  Future<String?> initLinuxSnapLib(String path) async {
     try {
       final Directory appDocDirFolder = Directory("$path/snap_library/");
       if (!await appDocDirFolder.exists()) {
         await appDocDirFolder.create(recursive: true);
       }
-    await downloadFileHooker(Uri.parse("https://www.dropbox.com/s/ra601fridsxmw4i/libsnap.so?dl=1"), appDocDirFolder.path, "libsnap.so");
-    return "success";
+      await downloadFileHooker(
+          Uri.parse(
+              "https://www.dropbox.com/s/ra601fridsxmw4i/libsnap.so?dl=1"),
+          appDocDirFolder.path,
+          "libsnap.so");
+      return "success";
     } catch (e) {
-    return e.toString();
+      return e.toString();
     }
-    }
-
+  }
 
   Future<void> downloadFileHooker(Uri uri, String savePath, String name) async {
-    try{
+    try {
       final request = await HttpClient().getUrl(uri);
       final response = await request.close();
       if (response.statusCode == 200) {
         var bytes = await consolidateHttpClientResponseBytes(response);
         File file = File('$savePath/$name');
         await file.writeAsBytes(bytes);
-
       }
-    }catch (e) {
-     print(e.toString());
+    } catch (e) {
+      print(e.toString());
     }
   }
-  Future<String?> getScreenSnapShot({required String fileName, required String filePath, String? libPath}) async{
-    if(Platform.isMacOS){
-      var data = await  WinCapturePlatform.instance.getScreenSnapShot(fileName: fileName, filePath: filePath);
+
+  Future<String?> getScreenSnapShot(
+      {required String fileName,
+      required String filePath,
+      String? libPath}) async {
+    if (Platform.isMacOS) {
+      var data = await WinCapturePlatform.instance
+          .getScreenSnapShot(fileName: fileName, filePath: filePath);
       return data.toString();
-    }else if(Platform.isWindows){
-      var data = await  WinCapturePlatform.instance.getScreenSnapShot(fileName: fileName, filePath: filePath);
+    } else if (Platform.isWindows) {
+      var data = await WinCapturePlatform.instance
+          .getScreenSnapShot(fileName: fileName, filePath: filePath);
       return data.toString();
-    }else {
-      if(libPath!=null){
+    } else {
+      if (libPath != null) {
         var libraryPath = path.join(libPath, 'snap_library', 'libsnap.so');
 
         final dylib = DynamicLibrary.open(libraryPath);
 
-        final maxPointer = dylib.lookupFunction<max_func, Max>('snap_shot');
+        final maxPointer = dylib.lookupFunction<MaxFun, Max>('snap_shot');
         final mbackwards = "$filePath/$fileName";
         final mbackwardsUtf8 = mbackwards.toNativeUtf8();
         maxPointer(mbackwardsUtf8, mbackwards.length);
@@ -71,11 +79,12 @@ class WinCapture {
         final reversedMessage = reversedMessageUtf8.toDartString();
         calloc.free(backwardsUtf8);
         return reversedMessage;
-      } else{
+      } else {
         return null;
       }
     }
   }
+
   Pointer<Double> intListToArray(List<int> list) {
     final ptr = malloc.allocate<Double>(sizeOf<Double>() * list.length);
     for (var i = 0; i < list.length; i++) {
@@ -89,15 +98,15 @@ class WinCapture {
     final request = await HttpClient().getUrl(uri);
     final response = await request.close();
     var bytes = await consolidateHttpClientResponseBytes(response);
-    File file =  File('$savePath/libsnap.so');
+    File file = File('$savePath/libsnap.so');
     await file.writeAsBytes(bytes);
     print('downloaded file path = ${file.path}');
   }
 
-  Future<void> requestPermission({ bool onlyOpenPrefPane = false}) {
-    return WinCapturePlatform.instance.requestPermission(onlyOpenPrefPane: onlyOpenPrefPane);
+  Future<void> requestPermission({bool onlyOpenPrefPane = false}) {
+    return WinCapturePlatform.instance
+        .requestPermission(onlyOpenPrefPane: onlyOpenPrefPane);
   }
-
 
   Future<bool?> isAccessAllowed() {
     return WinCapturePlatform.instance.isAccessAllowed();
@@ -106,5 +115,4 @@ class WinCapture {
   Future<bool?> popUpWindow() {
     return WinCapturePlatform.instance.popUpWindow();
   }
-
 }

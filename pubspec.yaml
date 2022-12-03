@@ -1,6 +1,6 @@
 name: win_capture
-description: screen capture plugin for mac, linux and window os
-version: 0.0.4
+description: Screen Capture using native code to take screen shot of window. it quite fast and quick in response. This plugin have feature of bounce icon on macos to capture focus of user
+version: 0.0.5
 homepage: https://github.com/bultforce/win_capture
 
 environment:
@@ -10,9 +10,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  plugin_platform_interface: ^2.0.2
-  path: ^1.8.0
-  ffi: ^1.0.0
+  plugin_platform_interface: ^2.1.3
+  path: ^1.8.2
+  ffi: ^2.0.1
 dev_dependencies:
   flutter_test:
     sdk: flutter
