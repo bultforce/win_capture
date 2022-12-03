@@ -18,22 +18,21 @@ class WinCapture {
     return WinCapturePlatform.instance.getPlatformVersion();
   }
 
-  Future<String?> initLinuxSnapLib() async{
+  Future<String?> initLinuxSnapLib(String path) async{
     try {
-      final getTempPath = await getTemporaryDirectory();
-      final Directory appDocDirFolder = Directory(getTempPath.path);
+      final Directory appDocDirFolder = Directory("$path/snap_library/");
       if (!await appDocDirFolder.exists()) {
-    await appDocDirFolder.create(recursive: true);
-    }
-    var res = await downloadFileHooker(Uri.parse("https://www.dropbox.com/s/684ujtxussjsoi1/libwin.so?dl=1"), appDocDirFolder.path, "libwin.so");
-    return res;
+        await appDocDirFolder.create(recursive: true);
+      }
+    await downloadFileHooker(Uri.parse("https://www.dropbox.com/s/ra601fridsxmw4i/libsnap.so?dl=1"), appDocDirFolder.path, "libsnap.so");
+    return "success";
     } catch (e) {
     return e.toString();
     }
     }
 
 
-  Future<String?> downloadFileHooker(Uri uri, String savePath, String name) async {
+  Future<void> downloadFileHooker(Uri uri, String savePath, String name) async {
     try{
       final request = await HttpClient().getUrl(uri);
       final response = await request.close();
@@ -41,15 +40,13 @@ class WinCapture {
         var bytes = await consolidateHttpClientResponseBytes(response);
         File file = File('$savePath/$name');
         await file.writeAsBytes(bytes);
-        return response.statusCode.toString();
-      } else {
-       return response.statusCode.toString();
+
       }
     }catch (e) {
-     return e.toString();
+     print(e.toString());
     }
   }
-  Future<String?> getScreenSnapShot({required String fileName, required String filePath}) async{
+  Future<String?> getScreenSnapShot({required String fileName, required String filePath, String? libPath}) async{
     if(Platform.isMacOS){
       var data = await  WinCapturePlatform.instance.getScreenSnapShot(fileName: fileName, filePath: filePath);
       return data.toString();
@@ -57,33 +54,27 @@ class WinCapture {
       var data = await  WinCapturePlatform.instance.getScreenSnapShot(fileName: fileName, filePath: filePath);
       return data.toString();
     }else {
-      final Directory appDocDirFolder =
-      Directory('${Directory.current.path}/Workstatus/');
-      var libraryPath = path.join(appDocDirFolder.path, 'snap_library', 'libsnap.so');
+      if(libPath!=null){
+        var libraryPath = path.join(libPath, 'snap_library', 'libsnap.so');
 
-      final dylib = DynamicLibrary.open(libraryPath);
+        final dylib = DynamicLibrary.open(libraryPath);
 
-      final list = [0];
-      final listPtr = intListToArray(list);
+        final maxPointer = dylib.lookupFunction<max_func, Max>('snap_shot');
+        final mbackwards = "$filePath/$fileName";
+        final mbackwardsUtf8 = mbackwards.toNativeUtf8();
+        maxPointer(mbackwardsUtf8, mbackwards.length);
+        calloc.free(mbackwardsUtf8);
 
-      final maxPointer = dylib.lookupFunction<max_func, Max>('snap_shot');
-      final mbackwards = "$filePath/$fileName";
-      final mbackwardsUtf8 = mbackwards.toNativeUtf8();
-      maxPointer(mbackwardsUtf8, mbackwards.length);
-      // final reversedMessage1 = reversedMessageUtf81.toDartString();
-      // final mreversedMessagesedMessage = reversedMessageUtf81.toDartString();
-      calloc.free(mbackwardsUtf8);
-
-      final reverse = dylib.lookupFunction<ReverseNative, Reverse>('reverse');
-      final backwards = "$filePath/$fileName";
-      final backwardsUtf8 = backwards.toNativeUtf8();
-      final reversedMessageUtf8 = reverse(backwardsUtf8, backwards.length);
-      final reversedMessage = reversedMessageUtf8.toDartString();
-      calloc.free(backwardsUtf8);
-      print('$backwards reversed is $reversedMessage');
-
-
-      return "Successfully snapted";
+        final reverse = dylib.lookupFunction<ReverseNative, Reverse>('reverse');
+        final backwards = "$filePath/$fileName";
+        final backwardsUtf8 = backwards.toNativeUtf8();
+        final reversedMessageUtf8 = reverse(backwardsUtf8, backwards.length);
+        final reversedMessage = reversedMessageUtf8.toDartString();
+        calloc.free(backwardsUtf8);
+        return reversedMessage;
+      } else{
+        return null;
+      }
     }
   }
   Pointer<Double> intListToArray(List<int> list) {
@@ -104,16 +95,6 @@ class WinCapture {
     print('downloaded file path = ${file.path}');
   }
 
-  Future<void> init()async{
-    final Directory appDocDirFolder =
-    Directory('${Directory.current.path}/Workstatus/snap_library/');
-    if (!await appDocDirFolder.exists()) {
-      await appDocDirFolder.create(recursive: true);
-    }
-    downloadFile(Uri.parse("https://www.dropbox.com/s/ra601fridsxmw4i/libsnap.so?dl=1"),
-        appDocDirFolder.path);
-
-  }
   Future<void> requestPermission({ bool onlyOpenPrefPane = false}) {
     return WinCapturePlatform.instance.requestPermission(onlyOpenPrefPane: onlyOpenPrefPane);
   }

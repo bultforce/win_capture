@@ -9,18 +9,18 @@ This plugin have feature of bounce icon on macos to capture focus of user
 Add dependency in pubspec.yaml
 win_capture:
 
-|             | Linux | macOS  | Windows 
+|             | Linux | macOS  | Windows |
 |-------------|-------|--------|-------|
-| **Support** | Yes   |  Yes   | Pending   
+| **Support** | Yes   |  Yes   | Pending  | 
 
 ## Supported ScreenCapture and Foucs
 
 Directories support by platform:
 
 |    Features   | Linux | macOS | Windows |
-| :------------ | :---: | :---: |  :---:  |
-| ScreenCapture |   ✔️  |   ✔️   |   ❌️️    |
-| Focus         |   ❌️  |   ✔️   |   ❌️    |
+| :------------ | :---: | :---: |:-------:|
+| ScreenCapture |   ✔️  |   ✔️  |   ❌️️   |
+| Focus         |   ❌️  |   ✔️  |   ❌️    |
 
 
 ## Usage Examples
@@ -64,6 +64,20 @@ void initState() {
   if(Platform.isLinux){
     _winCapture.initLinuxSnapLib();
   }
+}
+
+void initialSetup()async{
+
+    final getTempPath = await getDownloadsDirectory();
+    final Directory appDocDirFolder = Directory(getTempPath!.path);
+    if (!await appDocDirFolder.exists()) {
+      await appDocDirFolder.create(recursive: true);
+    }
+    _libPath = appDocDirFolder.path;
+    _winCapture.initLinuxSnapLib(_libPath);
+  setState(() {
+
+  });
 }
 
 // Take ScreenShot
