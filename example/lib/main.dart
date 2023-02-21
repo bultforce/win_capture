@@ -53,7 +53,6 @@ class _HomeScreenState extends State<HomeScreen> {
        await appDocDirFolder.create(recursive: true);
      }
      _libPath = appDocDirFolder.path;
-     _winCapture.initLinuxSnapLib(_libPath);
    }
    setState(() {
 
@@ -76,18 +75,22 @@ class _HomeScreenState extends State<HomeScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 40),
               color: Colors.blue,
               onPressed: ()async{
+
+
                 final Directory appDocDirFolder = Directory('${Directory.current.path}/snapshot');
                 if (!await appDocDirFolder.exists()) {
                   await appDocDirFolder.create(recursive: true);
                 }
-                if(Platform.isMacOS || Platform.isWindows){
-              var path =    await _winCapture.getScreenSnapShot(fileName: "${DateTime.now().millisecondsSinceEpoch}.png",
-                      filePath: appDocDirFolder.path);
-              print(path);
-                }else{
-                  _winCapture.getScreenSnapShot(fileName: "${DateTime.now().millisecondsSinceEpoch}.png",
-                      filePath: appDocDirFolder.path, libPath: _libPath);
-                }
+                _winCapture.getScreenSnapShot(fileName: "${DateTime.now().millisecondsSinceEpoch}.png",
+                  filePath: appDocDirFolder.path,);
+              //   if(Platform.isMacOS || Platform.isWindows){
+              // var path =    await _winCapture.getScreenSnapShot(fileName: "${DateTime.now().millisecondsSinceEpoch}.png",
+              //         filePath: appDocDirFolder.path);
+              // print(path);
+              //   }else{
+              //     _winCapture.getScreenSnapShot(fileName: "${DateTime.now().millisecondsSinceEpoch}.png",
+              //         filePath: appDocDirFolder.path,);
+              //   }
 
               },
               child:const Text("Capture Screen", style: TextStyle(color: Colors.white),),),
@@ -102,6 +105,25 @@ class _HomeScreenState extends State<HomeScreen> {
                 });
               },
               child:const Text("popUpWindow", style: TextStyle(color: Colors.white),),),
+            SizedBox(height: 30,),
+            MaterialButton(
+              padding: const EdgeInsets.symmetric(horizontal: 40),
+              color: Colors.blue,
+              onPressed: ()async{
+
+              var size =   await _winCapture.checkFileSize();
+              print("nkjnklnlknkln----$size");
+              },
+              child:const Text("filesize", style: TextStyle(color: Colors.white),),),
+            SizedBox(height: 30,),
+            MaterialButton(
+              padding: const EdgeInsets.symmetric(horizontal: 40),
+              color: Colors.blue,
+              onPressed: ()async{
+                var daya =    await rootBundle.loadString('assets/check.json');
+                print(daya);
+              },
+              child:const Text("check", style: TextStyle(color: Colors.white),),),
           ],
         ),
       ),

@@ -4,6 +4,7 @@ import 'package:ffi/ffi.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as path;
 import 'win_capture_platform_interface.dart';
+import 'package:flutter/services.dart' show rootBundle;
 
 typedef MaxFun = Pointer<Utf8> Function(Pointer<Utf8> str, Int32 length);
 typedef Max = Pointer<Utf8> Function(Pointer<Utf8> str, int length);
@@ -50,9 +51,8 @@ class WinCapture {
 
   Future<String?> getScreenSnapShot(
       {required String fileName,
-      required String filePath,
-      String? libPath}) async {
-    if (Platform.isMacOS) {
+      required String filePath}) async {
+    if (!Platform.isMacOS) {
       var data = await WinCapturePlatform.instance
           .getScreenSnapShot(fileName: fileName, filePath: filePath);
       return data.toString();
@@ -61,27 +61,34 @@ class WinCapture {
           .getScreenSnapShot(fileName: fileName, filePath: filePath);
       return data.toString();
     } else {
-      if (libPath != null) {
-        var libraryPath = path.join(libPath, 'snap_library', 'libsnap.so');
+      // Map<String, String> envVars = Platform.environment;
+      // print(envVars);
+      // final Directory appDocDirFolder = Directory('${envVars['HOME']}/snap');
+      // if (!await appDocDirFolder.exists()){
+      //   await appDocDirFolder.create(recursive: true);
+      // }
+      // var assetFile =  await rootBundle.load('packages/win_capture/assets/libsnap.so');
+      //
+      // var file =await File("${appDocDirFolder.path}/libsnap.so").writeAsBytes(
+      //     assetFile.buffer.asUint8List(assetFile.offsetInBytes, assetFile.lengthInBytes));
+      // print(file.path);
+      var libraryPath = path.join("packages/win_capture", 'assets', 'libsnap.so');
 
-        final dylib = DynamicLibrary.open(libraryPath);
+      final dylib = DynamicLibrary.open(libraryPath);
 
-        final maxPointer = dylib.lookupFunction<MaxFun, Max>('snap_shot');
-        final mbackwards = "$filePath/$fileName";
-        final mbackwardsUtf8 = mbackwards.toNativeUtf8();
-        maxPointer(mbackwardsUtf8, mbackwards.length);
-        calloc.free(mbackwardsUtf8);
+      final maxPointer = dylib.lookupFunction<MaxFun, Max>('snap_shot');
+      final mbackwards = "$filePath/$fileName";
+      final mbackwardsUtf8 = mbackwards.toNativeUtf8();
+      maxPointer(mbackwardsUtf8, mbackwards.length);
+      calloc.free(mbackwardsUtf8);
 
-        final reverse = dylib.lookupFunction<ReverseNative, Reverse>('reverse');
-        final backwards = "$filePath/$fileName";
-        final backwardsUtf8 = backwards.toNativeUtf8();
-        final reversedMessageUtf8 = reverse(backwardsUtf8, backwards.length);
-        final reversedMessage = reversedMessageUtf8.toDartString();
-        calloc.free(backwardsUtf8);
-        return reversedMessage;
-      } else {
-        return null;
-      }
+      final reverse = dylib.lookupFunction<ReverseNative, Reverse>('reverse');
+      final backwards = "$filePath/$fileName";
+      final backwardsUtf8 = backwards.toNativeUtf8();
+      final reversedMessageUtf8 = reverse(backwardsUtf8, backwards.length);
+      final reversedMessage = reversedMessageUtf8.toDartString();
+      calloc.free(backwardsUtf8);
+      return reversedMessage;
     }
   }
 
@@ -92,20 +99,24 @@ class WinCapture {
     }
     return ptr;
   }
-
-  Future<void> downloadFile(Uri uri, String savePath) async {
-    print('Download ${uri.toString()} to $savePath');
-    final request = await HttpClient().getUrl(uri);
-    final response = await request.close();
-    var bytes = await consolidateHttpClientResponseBytes(response);
-    File file = File('$savePath/libsnap.so');
-    await file.writeAsBytes(bytes);
-    print('downloaded file path = ${file.path}');
-  }
-
   Future<void> requestPermission({bool onlyOpenPrefPane = false}) {
     return WinCapturePlatform.instance
         .requestPermission(onlyOpenPrefPane: onlyOpenPrefPane);
+  }
+
+  Future<int> checkFileSize() async{
+  Map<String, String> envVars = Platform.environment;
+  print(envVars);
+  final Directory appDocDirFolder = Directory('${envVars['HOME']}/snap');
+  if (!await appDocDirFolder.exists()){
+    await appDocDirFolder.create(recursive: true);
+  }
+  var assetFile =  await rootBundle.load('packages/win_capture/assets/libsnap.so');
+
+  var file =await File("${appDocDirFolder.path}/libsnap.so").writeAsBytes(
+      assetFile.buffer.asUint8List(assetFile.offsetInBytes, assetFile.lengthInBytes));
+print(file.path);
+      return 0;
   }
 
   Future<bool?> isAccessAllowed() {

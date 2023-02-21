@@ -3,6 +3,6 @@
 ## 0.0.2 adding dynamic path for linux
 ## 0.0.3 fixing linux bugs
 ## 0.0.4 removing c files
-## 0.0.4 update dep
+## 0.0.5 update dep
 
 * TODO: Describe initial release.
